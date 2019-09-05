@@ -1,4 +1,4 @@
-from work.models import session, Medias
+from models import session, Medias
 
 
 def red_count(account_id, tag, red_gt):
