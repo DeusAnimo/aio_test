@@ -47,11 +47,8 @@ async def post_image(request):
         tag = request.query['tag']
         account_id = request.query['account_id']
 
-        reader = await request.multipart()
-        part = await reader.next()
-        filedata = await part.read()
-
-        red = await encoded_image(filedata)
+        reader = await request.read()
+        red = await encoded_image(reader)
 
         media = Medias(account_id=account_id, tag=tag, red=red, image_id=uuid_url64())
         session.add(media)
