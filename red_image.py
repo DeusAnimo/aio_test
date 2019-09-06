@@ -1,5 +1,6 @@
 ''' range of red in the picture '''
 
+import base64
 import numpy as np
 import cv2
 
@@ -7,9 +8,9 @@ RED_RANGE = [([0, 0, 80], [50, 50, 255])]
 
 
 async def encoded_image(bin_img):
-    ''' decoding from binary to NumPY array '''
+    ''' decoding from bytearray to NumPY array '''
     image = bin_img
-    decoded = cv2.imdecode(np.frombuffer(image, np.uint8), -1)
+    decoded = cv2.imdecode(np.frombuffer(base64.b64decode(image), np.uint8), -1)
     return await found_red_image(decoded, RED_RANGE)
 
 

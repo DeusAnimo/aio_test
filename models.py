@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, create_engine, String, Float
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-DB_URI = 'sqlite:///redb.db'
+DB_URI = 'sqlite:///refdb.db'
 
 Session = sessionmaker(autocommit=False,
                        autoflush=False,

@@ -1,19 +1,9 @@
 import json
-from aiohttp import web, ClientSession
+from aiohttp import web
 from red_image import encoded_image
 from models import Medias, session
 from rand import uuid_url64
 from count_func import red_count
-
-
-EXAMPLE = 'https://s9.stc.all.kpcdn.net/share/i/12/10976186/inx960x640.jpg'
-
-
-async def client_url(url):
-    async with ClientSession() as session:
-        async with session.get(url) as response:
-            binary = await response.read()
-            return await encoded_image(binary)
 
 
 async def get_image(request):
@@ -37,10 +27,10 @@ async def get_image(request):
 
 
 async def count_image(request):
-    account_id = request.match_info.get('account_id')
-    tag = request.match_info.get('tag')
-    red_gt = request.match_info.get('red_gt')
-    count = red_count(account_id=account_id, tag=tag, red_gt=red_gt)
+    account_id = request.query['account_id']
+    tag = request.query['tag']
+    red_gt = request.query['red_gt']
+    count = red_count(account_id, tag, float(red_gt))
     response_obj = {
         'medias': [{
             'count': count
@@ -52,11 +42,17 @@ async def count_image(request):
 
 
 async def post_image(request):
+    ''' processing post request and storing data in sqlite '''
     try:
         tag = request.query['tag']
         account_id = request.query['account_id']
-        url = request.query['url']
-        red = await client_url(url)
+
+        reader = await request.multipart()
+        part = await reader.next()
+        filedata = await part.read()
+
+        red = await encoded_image(filedata)
+
         media = Medias(account_id=account_id, tag=tag, red=red, image_id=uuid_url64())
         session.add(media)
         session.commit()
@@ -93,7 +89,7 @@ async def delete_image(request):
 app = web.Application()
 app.add_routes([
     web.get('/images/{image_id}', get_image),
-    web.get('/images/count', count_image),
+    web.get('/images/count/', count_image),
     web.post('/images', post_image),
     web.delete('/images/{image_id}', delete_image)
 ])
