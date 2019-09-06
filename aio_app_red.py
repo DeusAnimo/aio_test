@@ -57,7 +57,7 @@ async def post_image(request):
         session.add(media)
         session.commit()
 
-        user = session.query(Medias).filter(Medias.account_id == account_id).first()
+        user = session.query(Medias).filter(Medias.account_id == account_id)[-1]
         response_obj = {
             'medias': [{
                 'image_id': user.image_id, 'red': user.red
