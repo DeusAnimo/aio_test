@@ -16,7 +16,7 @@ class Medias(Base):
     __tablename__ = 'medias'
     id = Column(Integer, primary_key=True)
     account_id = Column(Integer, nullable=False)
-    tag = Column(String(50))
+    tag = Column(String(50), default='my_image')
     image_id = Column(Integer, unique=True)
     red = Column(Float)
 

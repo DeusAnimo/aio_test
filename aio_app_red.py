@@ -44,8 +44,11 @@ async def count_image(request):
 async def post_image(request):
     ''' processing post request and storing data in sqlite '''
     try:
-        tag = request.query['tag']
         account_id = request.query['account_id']
+        if 'tag' in request.query:
+            tag = request.query['tag']
+        else:
+            tag = None
 
         reader = await request.read()
         red = await encoded_image(reader)
