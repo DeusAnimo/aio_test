@@ -21,6 +21,12 @@ class Medias(Base):
     red = Column(Float)
 
 
+class Notification(Base):
+    __tablename__ = 'note'
+    id = Column(Integer, primary_key=True)
+    chat_id = Column(Integer, unique=True)
+
+
 if __name__ == "__main__":
     engine = create_engine(DB_URI)
     Base.metadata.drop_all(engine)

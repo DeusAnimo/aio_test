@@ -4,6 +4,7 @@
 
 misc/
 refdb.db
+secret_token.py
 
 # User-specific stuff
 .idea/**/workspace.xml
