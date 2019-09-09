@@ -23,16 +23,9 @@ def send_message():
                 )
 ```
 ## Usage
-To install / register webhook’s, you need to perform the following HTTP request:
+Notifications are sent to this address (automatically):
 ```python
-https://api.telegram.org/botTOKEN/setWebhook?url=https://YOUR.DOMAIN:PORT
+API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id=@notifired'
 ```
-Take __TOKEN__ from file __aio_app_red.py__
-
-For domain verification I use: [ngrok](https://ngrok.com/download)
-
-Put the file __ngrok.exe__ in the directory with the "app.py" and run:
-```
-$ ./ngrok http <our_server_port> 
-$ ./ngrok http 8080
-```
+Distribution channel used --> `@notifired`
+*Please add it to telegrams or replace it with yours!*
