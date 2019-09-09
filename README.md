@@ -27,7 +27,7 @@ To install / register webhook’s, you need to perform the following HTTP reques
 ```python
 https://api.telegram.org/botTOKEN/setWebhook?url=https://YOUR.DOMAIN:PORT
 ```
-Take TOKEN from file __aio_app_red.py__
+Take __TOKEN__ from file __aio_app_red.py__
 
 For domain verification I use: [ngrok](https://ngrok.com/download)
 
