@@ -4,7 +4,7 @@
 
 misc/
 refdb.db
-secret_token.py
+ngrok.exe
 
 # User-specific stuff
 .idea/**/workspace.xml

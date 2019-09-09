@@ -3,11 +3,10 @@ from sqlalchemy import exc
 from aiohttp import web
 from red_image import encoded_image
 from models import Medias, Notification, session
-from rand import uuid_url64
 from count_func import red_count
 import requests
-from secret_token import TOKEN
 
+TOKEN = '925360368:AAFSmEeIJx83kueu_ilb_SVD050SWlhXNxs'
 API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
 
 
@@ -33,6 +32,11 @@ async def notification(request):
 
 
 def send_message():
+    """
+    send to telegram
+    use your proxies in the request post.
+    :return:
+    """
     chat_id = session.query(Notification).all()
     last_post = session.query(Medias).order_by(Medias.id.desc()).first()
     for key in chat_id:
@@ -41,12 +45,13 @@ def send_message():
         }
         message = {
             'chat_id': key.chat_id,
-            'text': f'Image_id: {last_post.image_id}, Tag: {last_post.tag}'
+            'text': f'Account id: {last_post.account_id}, Image id: {last_post.image_id}\n'
+            f'Tag: {last_post.tag}, RED: {last_post.red}'
         }
 
         requests.post(API_URL,
-                      proxies=dict(http='http://host:port',
-                                   https='https://host:port'),
+                      proxies=dict(http='http://51.15.244.64:3128',
+                                   https='https://51.15.244.64:3128'),
                       data=json.dumps(message), headers=headers
                       )
 
@@ -77,11 +82,13 @@ async def get_image(request):
 
 async def count_image(request):
     """
-    :param request:
-    :return:
+    :param request: user parameters, tag optional
+    :return: int(count image.red > red_gt)
     """
+    tag = None
+    if 'tag' in request.query:
+        tag = request.query['tag']
     account_id = request.query['account_id']
-    tag = request.query['tag']
     red_gt = request.query['red_gt']
     count = red_count(account_id, tag, float(red_gt))
     response_obj = {
@@ -108,7 +115,7 @@ async def post_image(request):
         reader = await request.read()
         red = await encoded_image(reader)
 
-        media = Medias(account_id=account_id, tag=tag, red=red, image_id=uuid_url64())
+        media = Medias(account_id=account_id, tag=tag, red=red)
         session.add(media)
         session.commit()
         send_message()

@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, create_engine, String, Float
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import uuid
 
 DB_URI = 'sqlite:///refdb.db'
 
@@ -17,7 +18,7 @@ class Medias(Base):
     id = Column(Integer, primary_key=True)
     account_id = Column(Integer, nullable=False)
     tag = Column(String(50), default='my_image')
-    image_id = Column(Integer, unique=True)
+    image_id = Column(String, default=lambda: str(uuid.uuid4()))
     red = Column(Float)
 
 
