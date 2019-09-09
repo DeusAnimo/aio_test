@@ -108,7 +108,7 @@ async def post_image(request):
             }]
         }
 
-        # concurrent.futures.as_completed(send_message(media))
+        concurrent.futures.as_completed(send_message(media))
         return web.Response(status=201,
                             body=json.dumps(response_obj),
                             content_type='application/json'
