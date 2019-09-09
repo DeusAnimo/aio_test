@@ -1,59 +1,37 @@
 import json
-from sqlalchemy import exc
 from aiohttp import web
 from red_image import encoded_image
-from models import Medias, Notification, session
+from models import Medias, session
 from count_func import red_count
 import requests
 
 TOKEN = '925360368:AAFSmEeIJx83kueu_ilb_SVD050SWlhXNxs'
-API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
-
-
-async def notification(request):
-    data = await request.json()
-    tx = data['message']['text']
-    chat_id = data['message']['chat']['id']
-
-    if tx == '/start':
-        try:
-            session.add(Notification(chat_id=chat_id))
-            session.commit()
-        except exc.IntegrityError:
-            session.rollback()
-    if tx == '/stop':
-        user = session.query(Notification).filter(Notification.chat_id == chat_id).first()
-        if not user:
-            return web.Response(status=404)
-        session.delete(user)
-        session.commit()
-        return web.Response(status=204)
-    return web.Response(status=200)
+API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id=@notifired'
 
 
 def send_message():
     """
-    send to telegram
+    send to telegram chanel @notifired
     use your proxies in the request post.
     :return:
     """
-    chat_id = session.query(Notification).all()
     last_post = session.query(Medias).order_by(Medias.id.desc()).first()
-    for key in chat_id:
-        headers = {
-            'Content-Type': 'application/json'
-        }
-        message = {
-            'chat_id': key.chat_id,
-            'text': f'Account id: {last_post.account_id}, Image id: {last_post.image_id}\n'
-            f'Tag: {last_post.tag}, RED: {last_post.red}'
-        }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    message = {
+        'text': f'😋 Account id: <b>{last_post.account_id}</b>\n'
+        f'🏷️ Tag: <b>{last_post.tag}</b>\n'
+        f'🆔 Image: <b>{last_post.image_id}</b>\n'
+        f'🎯 RED: <b>{last_post.red} %</b>',
+        'parse_mode': 'HTML'
+    }
 
-        requests.post(API_URL,
-                      proxies=dict(http='http://51.15.244.64:3128',
-                                   https='https://51.15.244.64:3128'),
-                      data=json.dumps(message), headers=headers
-                      )
+    requests.post(API_URL,
+                  proxies=dict(http='http://203.160.175.178:8080',
+                               https='https://203.160.175.178:8080'),
+                  data=json.dumps(message), headers=headers
+                  )
 
 
 async def get_image(request):
@@ -85,20 +63,25 @@ async def count_image(request):
     :param request: user parameters, tag optional
     :return: int(count image.red > red_gt)
     """
-    tag = None
-    if 'tag' in request.query:
-        tag = request.query['tag']
-    account_id = request.query['account_id']
-    red_gt = request.query['red_gt']
-    count = red_count(account_id, tag, float(red_gt))
-    response_obj = {
-        'medias': [{
-            'count': count
-        }]
-    }
-    return web.Response(status=200,
-                        body=json.dumps(response_obj)
-                        )
+    try:
+        tag = None
+        account_id = None
+        if 'tag' in request.query:
+            tag = request.query['tag']
+        if 'account_id' in request.query:
+            account_id = request.query['account_id']
+        red_gt = request.query['red_gt']
+        count = red_count(account_id, tag, float(red_gt))
+        response_obj = {
+            'medias': [{
+                'count': count
+            }]
+        }
+        return web.Response(status=200,
+                            body=json.dumps(response_obj)
+                            )
+    except:
+        return web.Response(status=404, text='Wrong parameters!')
 
 
 async def post_image(request):
@@ -108,10 +91,9 @@ async def post_image(request):
     """
     try:
         account_id = request.query['account_id']
+        tag = None
         if 'tag' in request.query:
             tag = request.query['tag']
-        else:
-            tag = None
         reader = await request.read()
         red = await encoded_image(reader)
 
@@ -159,7 +141,6 @@ app.add_routes([
     web.get('/images/count/', count_image),
     web.post('/images', post_image),
     web.delete('/images/{image_id}', delete_image),
-    web.post('/', notification)
 ])
 
 if __name__ == '__main__':
