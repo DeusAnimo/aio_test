@@ -137,12 +137,10 @@ async def delete_image(request):
 
 
 app = web.Application()
-app.add_routes([
-    web.get('/images/{image_id}/', get_image),
-    web.get('/images/count', count_image),
-    web.post('/images', post_image),
-    web.delete('/images/{image_id}', delete_image),
-])
+app.router.add_get('/images/count', count_image)
+app.router.add_get('/images/{image_id}', get_image)
+app.router.add_post('/images', post_image)
+app.router.add_delete('/images/{image_id}', delete_image)
 
 if __name__ == '__main__':
     web.run_app(app, host='localhost', port=3030)
