@@ -1,6 +1,5 @@
 ''' range of red in the picture '''
 
-import base64
 import numpy as np
 import cv2
 
