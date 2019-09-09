@@ -10,7 +10,7 @@ TOKEN = '925360368:AAFSmEeIJx83kueu_ilb_SVD050SWlhXNxs'
 API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id=@notifired'
 
 
-async def send_message(media):
+def send_message(media):
     """
     send to telegram chanel @notifired
     use your proxies in the request post.
@@ -32,7 +32,6 @@ async def send_message(media):
                                https='https://203.160.175.178:8080'),
                   data=json.dumps(message), headers=headers
                   )
-    return web.Response(status=200)
 
 
 async def get_image(request):
@@ -109,7 +108,7 @@ async def post_image(request):
             }]
         }
 
-        concurrent.futures.as_completed(await send_message(media))
+        concurrent.futures.as_completed(send_message(media))
         return web.Response(status=201,
                             body=json.dumps(response_obj),
                             content_type='application/json'
