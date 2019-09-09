@@ -4,26 +4,26 @@ from red_image import encoded_image
 from models import Medias, session
 from count_func import red_count
 import requests
+import concurrent.futures
 
 TOKEN = '925360368:AAFSmEeIJx83kueu_ilb_SVD050SWlhXNxs'
 API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id=@notifired'
 
 
-def send_message():
+async def send_message(media):
     """
     send to telegram chanel @notifired
     use your proxies in the request post.
-    :return:
+    :arg: Medias object from POST request
     """
-    last_post = session.query(Medias).order_by(Medias.id.desc()).first()
     headers = {
         'Content-Type': 'application/json'
     }
     message = {
-        'text': f'😋 Account id: <b>{last_post.account_id}</b>\n'
-        f'🏷️ Tag: <b>{last_post.tag}</b>\n'
-        f'🆔 Image: <b>{last_post.image_id}</b>\n'
-        f'🎯 RED: <b>{last_post.red} %</b>',
+        'text': f'😋 Account id: <b>{media.account_id}</b>\n'
+        f'🏷️ Tag: <b>{media.tag}</b>\n'
+        f'🆔 Image: <b>{media.image_id}</b>\n'
+        f'🎯 RED: <b>{media.red} %</b>',
         'parse_mode': 'HTML'
     }
 
@@ -32,6 +32,7 @@ def send_message():
                                https='https://203.160.175.178:8080'),
                   data=json.dumps(message), headers=headers
                   )
+    return web.Response(status=200)
 
 
 async def get_image(request):
@@ -100,14 +101,15 @@ async def post_image(request):
         media = Medias(account_id=account_id, tag=tag, red=red)
         session.add(media)
         session.commit()
-        send_message()
 
-        user = session.query(Medias).filter(Medias.account_id == account_id)[-1]
+        media = session.query(Medias).filter(Medias.account_id == account_id)[-1]
         response_obj = {
             'medias': [{
-                'image_id': user.image_id, 'red': user.red
+                'image_id': media.image_id, 'red': media.red
             }]
         }
+
+        concurrent.futures.as_completed(await send_message(media))
         return web.Response(status=201,
                             body=json.dumps(response_obj),
                             content_type='application/json'
