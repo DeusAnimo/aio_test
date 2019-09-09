@@ -108,7 +108,7 @@ async def post_image(request):
             }]
         }
 
-        concurrent.futures.as_completed(send_message(media))
+        # concurrent.futures.as_completed(send_message(media))
         return web.Response(status=201,
                             body=json.dumps(response_obj),
                             content_type='application/json'
@@ -138,8 +138,8 @@ async def delete_image(request):
 
 app = web.Application()
 app.add_routes([
-    web.get('/images/{image_id}', get_image),
-    web.get('/images/count/', count_image),
+    web.get('/images/{image_id}/', get_image),
+    web.get('/images/count', count_image),
     web.post('/images', post_image),
     web.delete('/images/{image_id}', delete_image),
 ])

@@ -3,7 +3,7 @@
 import numpy as np
 import cv2
 
-RED_RANGE = [([0, 0, 80], [50, 50, 255])]
+RED_RANGE = [([0, 0, 30], [60, 60, 255])]
 
 
 async def encoded_image(bin_img):
